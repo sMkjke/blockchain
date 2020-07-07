@@ -8,17 +8,19 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        int complexity = 2;
+        int complexity = 1;
 
         final Blockchain blockchainHolder = new Blockchain(complexity);
-        final ExecutorService executor = Executors.newFixedThreadPool(4);
+        final ExecutorService executor = Executors.newFixedThreadPool(8);
 
         List<List<Message>> chatter = generateMessages();
+
 
         for (int i = 0; i < 8 / 2; i++) {
             executor.submit(new Miner(blockchainHolder, i));
         }
 
+        //every block should have messages
         for (int i = 0; i < chatter.size(); i++) {
             blockchainHolder.addPendingMessages(chatter.get(i));
             while (!blockchainHolder.getPendingMessages().isEmpty()) {
@@ -44,13 +46,19 @@ public class Main {
         User misha = new User("Misha");
 
         return List.of(
-                List.of(new Message(tom, "Hey, I'm first!", Utils.INT_SUPPLIER.getAsInt())),
-                List.of(new Message(misha, "It's not fair!", Utils.INT_SUPPLIER.getAsInt()),
-                        new Message(tom, "You always will be first because it is your blockchain!", Utils.INT_SUPPLIER.getAsInt()),
-                        new Message(misha, "Anyway, thank you for this amazing chat.", Utils.INT_SUPPLIER.getAsInt())),
-                List.of(new Message(tom, "You're welcome :)", Utils.INT_SUPPLIER.getAsInt()),
-                        new Message(tom, "Hey Tom, nice chat", Utils.INT_SUPPLIER.getAsInt())),
-                List.of(new Message(misha, "olala", Utils.INT_SUPPLIER.getAsInt())),
-                List.of(new Message(tom, "make great", Utils.INT_SUPPLIER.getAsInt())));
+                List.of(new Message(tom, "Hey, I'm first!", CrypthoUtils.INT_SUPPLIER.getAsInt())),
+                List.of(new Message(misha, "It's not fair!", CrypthoUtils.INT_SUPPLIER.getAsInt()),
+                        new Message(tom, "You always will be first because it is your blockchain!",
+                                CrypthoUtils.INT_SUPPLIER.getAsInt()),
+                        new Message(misha, "Anyway, thank you for this amazing chat.",
+                                CrypthoUtils.INT_SUPPLIER.getAsInt())),
+                List.of(new Message(tom, "You're welcome :)", CrypthoUtils.INT_SUPPLIER.getAsInt()),
+                        new Message(tom, "Hey Tom, nice chat", CrypthoUtils.INT_SUPPLIER.getAsInt())),
+                List.of(new Message(misha, "olala", CrypthoUtils.INT_SUPPLIER.getAsInt())),
+                List.of(new Message(tom, "make great", CrypthoUtils.INT_SUPPLIER.getAsInt())));
     }
 }
+
+// TODO: 07.06.2020  Add serialisation and deserialization,
+//  message cryptography check and transaction exchange between users;
+

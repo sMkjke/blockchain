@@ -6,15 +6,15 @@ import java.util.List;
 
 public class Blockchain {
 
+    public volatile List<Message> pendingMessages = new LinkedList<>();
     private int complexity;
     private volatile ArrayList<Block> blockchain = new ArrayList<>();
-    public volatile List<Message> pendingMessages = new LinkedList<>();
 
     public Blockchain(int complexity) {
         this.complexity = complexity;
     }
 
-    public int getComplexity() {
+    public synchronized int getComplexity() {
         return complexity;
     }
 
@@ -30,7 +30,8 @@ public class Blockchain {
     }
 
     public synchronized void addBlock(Block block) {
-        if (getPreviousBlock() != null && !getPreviousBlock().getHash().equals(block.getPreviousHash())) {
+        if (getPreviousBlock() != null && !getPreviousBlock().getHash().equals(block.getPreviousHash()) ||
+                getBlockCount() == 0 && !block.getPreviousHash().equals("0")) {
             return;
         }
 
@@ -40,7 +41,9 @@ public class Blockchain {
             clearMessageList();
 
             if (((block.getTimeStampFinish() - block.getMiningStartTime()) / 1000) > 5) {
-                complexity--;
+                if (getComplexity() > 0) {
+                    complexity--;
+                }
                 block.setBlockComplexityWhenMine("N was decreased to " + this.complexity);
             } else if (((block.getTimeStampFinish() - block.getMiningStartTime()) / 1000) < 5) {
                 complexity++;
@@ -51,11 +54,25 @@ public class Blockchain {
         }
     }
 
+    public ArrayList<Block> getBlockchain() {
+        return blockchain;
+    }
+
+    public synchronized List<Message> getPendingMessages() {
+        return this.pendingMessages;
+    }
+
+    public synchronized void addPendingMessages(List<Message> messages) {
+        this.pendingMessages.addAll(messages);
+    }
+
     private boolean isValid(Block block) {
-        return (block.getHash().startsWith(new String(new char[getComplexity()]).replace('\0', '0')));
+        return (block.getHash().startsWith(new String(new char[getComplexity()])
+                .replace('\0', '0')));
     }
 
     private synchronized boolean areBlockMessagesValid(Block block) {
+        //for testing
         if (block.getBlockMessages().isEmpty()) {
             return false;
         }
@@ -69,18 +86,6 @@ public class Blockchain {
             }
         }
         return true;
-    }
-
-    public ArrayList<Block> getBlockchain() {
-        return blockchain;
-    }
-
-    public synchronized List<Message> getPendingMessages() {
-        return this.pendingMessages;
-    }
-
-    public synchronized void addPendingMessages(List<Message> messages) {
-        this.pendingMessages.addAll(messages);
     }
 
     private synchronized void clearMessageList() {

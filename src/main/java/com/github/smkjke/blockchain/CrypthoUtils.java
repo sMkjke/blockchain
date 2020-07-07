@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.IntSupplier;
 
-public class Utils {
+public class CrypthoUtils {
     public static String sha256(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");

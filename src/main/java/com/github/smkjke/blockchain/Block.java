@@ -51,7 +51,7 @@ public class Block implements Serializable {
     }
 
     public String calculateBlockHash() {
-        return Utils.sha256(previousHash
+        return CrypthoUtils.sha256(previousHash
                 + miningStartTime
                 + nonce
                 + blockMessage);
@@ -78,20 +78,13 @@ public class Block implements Serializable {
         System.out.println(getHash());
         System.out.println("Block data:");
         System.out.println(blockMessage);
-        System.out.println("Block was generating for " + ((getTimeStampFinish() - getMiningStartTime()) / 1000) + " seconds");
+        System.out.println("Block was generating for " +
+                ((getTimeStampFinish() - getMiningStartTime()) / 1000) + " seconds");
         System.out.println(getBlockComplexityWhenMine());
     }
 
     public List<Message> getBlockMessages() {
         return this.blockMessages;
-    }
-
-    private synchronized String addAllMessages() {
-        StringJoiner builder = new StringJoiner("\n");
-        for (Message i : getBlockMessages()) {
-            builder.add(i.getAuthor().getName() + ": " + i.getText());
-        }
-        return builder.toString();
     }
 
     public void setMaxMsgID(long maxMsgID) {
@@ -100,5 +93,13 @@ public class Block implements Serializable {
 
     public synchronized long getMaxMsgID() {
         return this.maxMsgID;
+    }
+
+    private synchronized String addAllMessages() {
+        StringJoiner builder = new StringJoiner("\n");
+        for (Message i : getBlockMessages()) {
+            builder.add(i.getAuthor().getName() + ": " + i.getText());
+        }
+        return builder.toString();
     }
 }
